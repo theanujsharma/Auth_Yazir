@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    {% if current_user.is_authenticated %}
+    Hi {{ current_user.username }}!
+    {% if current_user|length == 0 %}
+    <p style="color:blue">No user found</p>
+    {% endif %}
+    <ul>
+        {% for user in current_users %}
+        <li>{{ user.email }}</li>
+    </ul>
+    {% endfor %}
+</body>
+</html>
