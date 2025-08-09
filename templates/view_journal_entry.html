@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ entry.title }} - Journal Entry</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #eee;
+        }
+        .nav-links {
+            margin-top: 20px;
+        }
+        .nav-links a {
+            display: inline-block;
+            margin: 0 10px;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        .nav-links a:hover {
+            background-color: #0056b3;
+        }
+        .home-btn {
+            background-color: #6c757d !important;
+        }
+        .home-btn:hover {
+            background-color: #545b62 !important;
+        }
+        .journal-btn {
+            background-color: #17a2b8 !important;
+        }
+        .journal-btn:hover {
+            background-color: #138496 !important;
+        }
+        .edit-btn {
+            background-color: #ffc107 !important;
+            color: #212529 !important;
+        }
+        .edit-btn:hover {
+            background-color: #e0a800 !important;
+        }
+        .entry-section {
+            margin-top: 30px;
+        }
+        .entry-title {
+            font-size: 28px;
+            color: #333;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .entry-meta {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        .entry-content {
+            line-height: 1.8;
+            color: #333;
+            font-size: 16px;
+            white-space: pre-wrap;
+            background-color: #f9f9f9;
+            padding: 25px;
+            border-radius: 8px;
+            border-left: 4px solid #007bff;
+        }
+        .entry-actions {
+            margin-top: 30px;
+            text-align: center;
+        }
+        .btn {
+            display: inline-block;
+            margin: 0 10px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            text-decoration: none;
+            color: white;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .btn-edit {
+            background-color: #ffc107;
+            color: #212529;
+        }
+        .btn-edit:hover {
+            background-color: #e0a800;
+        }
+        .btn-delete {
+            background-color: #dc3545;
+        }
+        .btn-delete:hover {
+            background-color: #c82333;
+        }
+        .flash-messages {
+            margin-bottom: 20px;
+        }
+        .flash-message {
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+        .flash-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .flash-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .flash-info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Journal Entry</h1>
+            
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="flash-messages">
+                        {% for category, message in messages %}
+                            <div class="flash-message flash-{{ category }}">{{ message }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+            
+            <div class="nav-links">
+                <a href="{{ url_for('index') }}" class="home-btn">Home</a>
+                <a href="{{ url_for('journal') }}" class="journal-btn">My Journal</a>
+                <a href="{{ url_for('edit_journal_entry', entry_id=entry.id) }}" class="edit-btn">Edit</a>
+            </div>
+        </div>
+        
+        <div class="entry-section">
+            <h2 class="entry-title">{{ entry.title }}</h2>
+            
+            <div class="entry-meta">
+                Created: {{ entry.created_at.strftime('%Y-%m-%d %H:%M:%S') }}
+                {% if entry.updated_at != entry.created_at %}
+                    | Updated: {{ entry.updated_at.strftime('%Y-%m-%d %H:%M:%S') }}
+                {% endif %}
+            </div>
+            
+            <div class="entry-content">
+                {{ entry.content }}
+            </div>
+            
+            <div class="entry-actions">
+                <a href="{{ url_for('edit_journal_entry', entry_id=entry.id) }}" class="btn btn-edit">Edit Entry</a>
+                <form method="POST" action="{{ url_for('delete_journal_entry', entry_id=entry.id) }}" style="display: inline;">
+                    <button type="submit" class="btn btn-delete" onclick="return confirm('Are you sure you want to delete this entry?')">Delete Entry</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 

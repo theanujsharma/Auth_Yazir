@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Journal</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #eee;
+        }
+        .nav-links {
+            margin-top: 20px;
+        }
+        .nav-links a {
+            display: inline-block;
+            margin: 0 10px;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        .nav-links a:hover {
+            background-color: #0056b3;
+        }
+        .new-entry-btn {
+            background-color: #28a745 !important;
+        }
+        .new-entry-btn:hover {
+            background-color: #218838 !important;
+        }
+        .home-btn {
+            background-color: #6c757d !important;
+        }
+        .home-btn:hover {
+            background-color: #545b62 !important;
+        }
+        .entries-section {
+            margin-top: 30px;
+        }
+        .entries-title {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .entry-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            background-color: #f9f9f9;
+            transition: box-shadow 0.3s;
+        }
+        .entry-card:hover {
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .entry-title {
+            font-size: 20px;
+            color: #333;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+        .entry-content {
+            color: #666;
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+        .entry-meta {
+            font-size: 12px;
+            color: #999;
+            margin-bottom: 15px;
+        }
+        .entry-actions {
+            display: flex;
+            gap: 10px;
+        }
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            text-decoration: none;
+            color: white;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .btn-view {
+            background-color: #17a2b8;
+        }
+        .btn-view:hover {
+            background-color: #138496;
+        }
+        .btn-edit {
+            background-color: #ffc107;
+            color: #212529;
+        }
+        .btn-edit:hover {
+            background-color: #e0a800;
+        }
+        .btn-delete {
+            background-color: #dc3545;
+        }
+        .btn-delete:hover {
+            background-color: #c82333;
+        }
+        .no-entries {
+            text-align: center;
+            color: #666;
+            font-style: italic;
+            padding: 40px;
+        }
+        .flash-messages {
+            margin-bottom: 20px;
+        }
+        .flash-message {
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+        .flash-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .flash-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .flash-info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>My Journal</h1>
+            
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="flash-messages">
+                        {% for category, message in messages %}
+                            <div class="flash-message flash-{{ category }}">{{ message }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+            
+            <div class="nav-links">
+                <a href="{{ url_for('index') }}" class="home-btn">Home</a>
+                <a href="{{ url_for('new_journal_entry') }}" class="new-entry-btn">New Entry</a>
+            </div>
+        </div>
+        
+        <div class="entries-section">
+            <h2 class="entries-title">Your Journal Entries</h2>
+            
+            {% if entries %}
+                {% for entry in entries %}
+                    <div class="entry-card">
+                        <div class="entry-title">{{ entry.title }}</div>
+                        <div class="entry-content">
+                            {{ entry.content[:200] }}{% if entry.content|length > 200 %}...{% endif %}
+                        </div>
+                        <div class="entry-meta">
+                            Created: {{ entry.created_at.strftime('%Y-%m-%d %H:%M:%S') }}
+                            {% if entry.updated_at != entry.created_at %}
+                                | Updated: {{ entry.updated_at.strftime('%Y-%m-%d %H:%M:%S') }}
+                            {% endif %}
+                        </div>
+                        <div class="entry-actions">
+                            <a href="{{ url_for('view_journal_entry', entry_id=entry.id) }}" class="btn btn-view">View</a>
+                            <a href="{{ url_for('edit_journal_entry', entry_id=entry.id) }}" class="btn btn-edit">Edit</a>
+                            <form method="POST" action="{{ url_for('delete_journal_entry', entry_id=entry.id) }}" style="display: inline;">
+                                <button type="submit" class="btn btn-delete" onclick="return confirm('Are you sure you want to delete this entry?')">Delete</button>
+                            </form>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="no-entries">
+                    <p>You haven't written any journal entries yet.</p>
+                    <p>Click "New Entry" to start writing!</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html> 
